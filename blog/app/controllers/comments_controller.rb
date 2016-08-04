@@ -1,5 +1,10 @@
 class CommentsController < ApplicationController
 
+  #GET
+  def show
+    @comment = Comment.find(params[:id])
+  end
+
   # POST
   def create
     @article = Article.find(params[:article_id])
