@@ -1,5 +1,7 @@
 class CommentsController < ApplicationController
 
+  http_basic_authenticate_with name: 'bao', password: 'rails', only: [:destroy]
+
   #GET
   def show
     @comment = Comment.find(params[:id])
