@@ -3,4 +3,8 @@ Rails.application.routes.draw do
   post 'login', to: 'sessions#create'
   resources :users
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
+
+  scope path: '/users/:user_id' do
+    resources :microposts, only: [:index]
+  end
 end

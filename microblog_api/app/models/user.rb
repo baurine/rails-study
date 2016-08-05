@@ -3,6 +3,8 @@ class User < ApplicationRecord
   before_create :generate_auth_token
   has_secure_password
 
+  has_many :microposts
+
   def generate_auth_token
     loop do
       self.auth_token = SecureRandom.base64(64).tr('+/=', 'Qrt')
