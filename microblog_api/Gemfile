@@ -27,6 +27,8 @@ gem 'pundit'
 # use for pagination
 gem 'kaminari'
 
+gem 'redis-throttle', git: 'git://github.com/andreareginato/redis-throttle.git'
+
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platform: :mri

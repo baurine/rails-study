@@ -12,6 +12,8 @@ require "action_cable/engine"
 # require "sprockets/railtie"
 require "rails/test_unit/railtie"
 
+require "rack/redis_throttle"
+
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
@@ -28,5 +30,7 @@ module MicroblogApi
     config.api_only = true
 
     config.autoload_paths << Rails.root.join('app/policies')
+
+    config.middleware.use Rack::RedisThrottle::Daily, max: 5000
   end
 end
