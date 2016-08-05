@@ -6,7 +6,7 @@
 #   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
 #   Character.create(name: 'Luke', movie: movies.first)
 
-users = User.create([
+[
   {
     email: 'test00@mail.com',
     name: 'test00',
@@ -36,4 +36,13 @@ users = User.create([
     name: 'test04',
     activated: DateTime.now,
     admin: false
-  }])
+  }
+].each do |p|
+  u = User.new(p)
+  u.password = '123123'
+  if u.save
+    puts "save succ #{u}"
+  else
+    puts u.errors.full_messages
+  end
+end

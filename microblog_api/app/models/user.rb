@@ -1,6 +1,7 @@
 class User < ApplicationRecord
 
   before_create :generate_auth_token
+  has_secure_password
 
   def generate_auth_token
     loop do
@@ -9,7 +10,7 @@ class User < ApplicationRecord
     end
   end
 
-  def reset_auth_token
+  def reset_auth_token!
     generate_auth_token
     save
   end
