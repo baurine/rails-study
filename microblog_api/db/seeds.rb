@@ -46,3 +46,7 @@
     puts u.errors.full_messages
   end
 end
+
+100.times do |i|
+  Micropost.create(user_id: 1, title: "title-#{i}", content: "content-#{i}")
+end
