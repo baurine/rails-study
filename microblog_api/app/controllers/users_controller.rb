@@ -27,11 +27,9 @@ class UsersController < ApplicationController
 
   # PATCH/PUT /users/1
   def update
-    if @user.update_attributes(update_params)
-      render json: @user
-    else
-      render json: @user.errors, status: :unprocessable_entity
-    end
+    authorize @user, :update?
+    @user.update_attributes(update_params)
+    render json: @user
   end
 
   # DELETE /users/1
