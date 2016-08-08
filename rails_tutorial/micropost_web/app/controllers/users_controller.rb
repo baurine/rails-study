@@ -2,6 +2,7 @@ class UsersController < ApplicationController
   # GET
   def new
     # debugger
+    @user = User.new
   end
 
   def show
