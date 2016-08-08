@@ -9,4 +9,6 @@ Rails.application.routes.draw do
 
   # user
   get '/signup',  to: 'users#new'
+  # resources :users, except: :new
+  resources :users
 end
