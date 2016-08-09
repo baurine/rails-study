@@ -11,7 +11,8 @@ class SessionsController < ApplicationController
       log_in user
       session_params[:remember_me] == '1' ? remember(user) : forget(user)
       # remember user
-      redirect_to user
+      # redirect_to user
+      redirect_back_or user
     else
       flash.now[:danger] = "Email and password didn't match!"
       render 'new'
