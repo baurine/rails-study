@@ -10,6 +10,10 @@ class UsersController < ApplicationController
     # debugger
   end
 
+  def edit
+    @user = User.find(params[:id])
+  end
+
   # POST
   def create
     @user = User.new(user_params)
@@ -24,6 +28,15 @@ class UsersController < ApplicationController
   end
 
   # PATCH / PUT
+  def update
+    @user = User.find(params[:id])
+    if @user.update_attributes(user_params)
+      flash[:success] = "Update successfully!"
+      redirect_to @user
+    else
+      render 'edit'
+    end
+  end
 
   # DELETE
 
