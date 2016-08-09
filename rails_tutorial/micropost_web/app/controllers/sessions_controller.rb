@@ -9,7 +9,8 @@ class SessionsController < ApplicationController
     if user && user.authenticate(session_params[:password])
       flash[:success] = "Login successfully!"
       log_in user
-      remember user
+      session_params[:remember_me] == '1' ? remember(user) : forget(user)
+      # remember user
       redirect_to user
     else
       flash.now[:danger] = "Email and password didn't match!"
@@ -25,6 +26,6 @@ class SessionsController < ApplicationController
 
   private
     def session_params
-      params.require(:session).permit(:email, :password)
+      params.require(:session).permit(:email, :password, :remember_me)
     end
 end
