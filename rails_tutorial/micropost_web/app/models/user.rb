@@ -10,6 +10,9 @@ class User < ApplicationRecord
   validates :password, presence: true, length: { minimum: 6 }, allow_nil: true
   attr_accessor :remember_token
 
+  # releation with microposts
+  has_many :microposts, dependent: :destroy
+
   def remember
     self.remember_token = User.new_token
     # update_attributes(remember_digest: User.digest(remember_token))
