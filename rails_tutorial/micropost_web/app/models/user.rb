@@ -19,6 +19,12 @@ class User < ApplicationRecord
                                   dependent: :destroy
   has_many :following, through: :active_relationships, source: :followed
 
+  # passive relation with follow
+  has_many :passive_relationships, class_name: "Relationship",
+                                   foreign_key: "followed_id",
+                                   dependent: :destroy
+  has_many :followers, through: :passive_relationships, source: :follower
+
   def remember
     self.remember_token = User.new_token
     # update_attributes(remember_digest: User.digest(remember_token))
