@@ -11,7 +11,11 @@ Rails.application.routes.draw do
   get  '/signup',  to: 'users#new'
   post '/signup',  to: 'users#create'
   # resources :users, except: :new
-  resources :users
+  resources :users do
+    member do
+      get :following, :followers
+    end
+  end
 
   # session
   get     '/login',   to: 'sessions#new'
