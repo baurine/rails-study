@@ -1,4 +1,5 @@
-study rails
+#### Study Rails
+------------------------
 
 blog: 
 
@@ -13,4 +14,8 @@ microblog_api:
 
 * <https://ruby-china.org/topics/30573>
 * <https://ruby-china.org/topics/25822>
+
+rails_tutorial/micropost_web:
+
+* book [*The Ruby on Rails Tutorial*](https://selfstore.io/products/189)
 
