@@ -19,3 +19,7 @@ rails_tutorial/micropost_web:
 
 * book [*The Ruby on Rails Tutorial*](https://selfstore.io/products/189)
 
+item_cart:
+
+- <http://tutorials.pluralsight.com/ruby-ruby-on-rails/building-a-crud-interface-with-react-and-ruby-on-rails>
+
