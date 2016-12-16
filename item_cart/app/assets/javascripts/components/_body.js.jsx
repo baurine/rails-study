@@ -1,11 +1,17 @@
 var Body = React.createClass({
   getInitialState() {
     return {
-      items: []
+      items: this.props.items || []
     }
   },
   
   componentDidMount() {
+    // the Body component will be pre-render by server when you access '/items' url
+    // verify the js code run in client, whether it can retrive the init data supplied by server
+    // the init data will be included in the html data
+    console.log(this.props.items)
+    console.log(this.state.items)
+
     $.getJSON('/api/v1/items.json', (response) => {
       this.setState({items: response})
     })

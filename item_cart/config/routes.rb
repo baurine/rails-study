@@ -7,4 +7,7 @@ Rails.application.routes.draw do
   end
 
   root to: 'site#index'
+
+  # demo server render
+  get 'items', to: 'site#items'
 end
