@@ -20,7 +20,7 @@ class Api::V1::ItemsController < Api::V1::BaseController
   private
 
   def item_params
-    params.request(:item).premit(:id, :name, :descrpiton)
+    params.require(:item).permit(:id, :name, :description)
   end
   
 end
