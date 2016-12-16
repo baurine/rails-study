@@ -8,8 +8,9 @@ var NewItem = React.createClass({
       url: 'api/v1/items',
       type: 'POST',
       data: { item: { name: name, description: desc } },
-      success: (response) => {
-        console.log("it works!", response)
+      success: (item) => {
+        // console.log("it works!", item)
+        this.props.handleSubmit(item)
       }
     })
   },
