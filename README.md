@@ -1,25 +1,35 @@
-#### Study Rails
-------------------------
+# Study Rails
 
-blog: 
+Practice different samples follow different tutorials.
 
-* <http://guides.rubyonrails.org/getting_started.html>
+## `simple_blog`
 
-my_api: 
+A simple and basic blog sample, follow ruby on rails official getting started guide.
 
-* <https://wyeworks.com/blog/2015/6/11/how-to-build-a-rails-5-api-only-and-backbone-application>
-* <http://sourcey.com/building-the-prefect-rails-5-api-only-app/>
+- <http://guides.rubyonrails.org/getting_started.html>
 
-microblog_api:
+![](./note/art/1_simple_blog.png)
 
-* <https://ruby-china.org/topics/30573>
-* <https://ruby-china.org/topics/25822>
+## `my_api`
 
-rails_tutorial/micropost_web:
+Practice api only app by rails 5 native api only mode.
 
-* book [*The Ruby on Rails Tutorial*](https://selfstore.io/products/189)
+- <https://wyeworks.com/blog/2015/6/11/how-to-build-a-rails-5-api-only-and-backbone-application>
+- <http://sourcey.com/building-the-prefect-rails-5-api-only-app/>
 
-item_cart:
+## `microblog_api`
+
+Another api only app.
+
+- <https://ruby-china.org/topics/30573>
+- <https://ruby-china.org/topics/25822>
+
+## `rails_tutorial/micropost_web`
+
+The sample follow book [*The Ruby on Rails Tutorial*](https://selfstore.io/products/189)
+
+## `item_cart`
+
+The sample about how to integrate react in rails by 'react-rails' gem.
 
 - <http://tutorials.pluralsight.com/ruby-ruby-on-rails/building-a-crud-interface-with-react-and-ruby-on-rails>
-
