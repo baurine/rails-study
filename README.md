@@ -1,34 +1,44 @@
-# Study Rails
+# Rails Study
 
-Practice different samples follow different tutorials.
+Practice different rails samples follow different tutorials.
 
-## `simple_blog`
+## Note
 
-A simple and basic blog sample, follow ruby on rails official getting started guide.
+1. [*Ruby on Rails Tutorail* Book Note 1](./note/ruby-on-rails-tutorial-note.md)
+1. [*Ruby on Rails Tutorail* Book Note 2](./note/ruby-on-rails-tutorial-note-2.md)
+1. [Youdao Note](http://note.youdao.com/share/?id=7e42bb0ae8c4c7a3f04cb941552cb711#/)
 
-- <http://guides.rubyonrails.org/getting_started.html>
+## Samples
 
-![](./note/art/1_simple_blog.png)
+### `simple_blog`
 
-## `my_api`
+A simple and basic blog sample, follow ruby on rails [official getting started guide](http://guides.rubyonrails.org/getting_started.html).
+
+### `my_api`
 
 Practice api only app by rails 5 native api only mode.
 
 - <https://wyeworks.com/blog/2015/6/11/how-to-build-a-rails-5-api-only-and-backbone-application>
 - <http://sourcey.com/building-the-prefect-rails-5-api-only-app/>
 
-## `microblog_api`
+### `microblog_api`
 
 Another api only app.
 
 - <https://ruby-china.org/topics/30573>
 - <https://ruby-china.org/topics/25822>
 
-## `rails_tutorial/micropost_web`
+### `rails_tutorial`
 
-The sample follow book [*The Ruby on Rails Tutorial*](https://selfstore.io/products/189)
+The samples follow the book [*Ruby on Rails Tutorial*](https://www.railstutorial.org/book).
 
-## `item_cart`
+1. `micropost_web`
+
+   A twitter-like micro-post web site.
+
+   ![](./note/art/1_simple_blog.png)
+
+### `item_cart`
 
 The sample about how to integrate react in rails by 'react-rails' gem.
 
