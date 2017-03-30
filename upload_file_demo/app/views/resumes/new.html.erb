@@ -14,6 +14,22 @@
     <%= f.text_field :name %>
     <%= f.label :attachment %>
     <%= f.file_field :attachment%>
+    <img id="preview">
     <%= f.submit "Save", class: "btn btn-primary" %>
   <% end %>
 </div>
+
+<script type="text/javascript">
+  function previewImg(input) {
+    if (input.files && input.files[0]) {
+      let reader = new FileReader()
+      reader.onload = function(e) {
+        $('#preview').attr('src', e.target.result)
+                     .width(150)
+                     .height(150)
+      }
+      reader.readAsDataURL(input.files[0])
+    }
+  }
+  $('#resume_attachment').change(function(){previewImg(this)})
+</script>
