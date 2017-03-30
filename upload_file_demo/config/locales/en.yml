@@ -21,3 +21,6 @@
 
 en:
   hello: "Hello world"
+  errors:
+    messages:
+      extension_whitelist_error: 'type error, you are only allowed to upload image'
