@@ -9,6 +9,7 @@
 <% end %>
 
 <div class="well">
+  <p>Way 1</p>
   <%= form_for @resume, html: {multipart: true} do |f| %>
     <%= f.label :name %>
     <%= f.text_field :name %>
@@ -17,6 +18,17 @@
     <img id="preview">
     <%= f.submit "Save", class: "btn btn-primary" %>
   <% end %>
+
+  <br />
+  <p>Way 2</p>
+  <input id="fileupload" type="file" name="image_file" data-url="/upload">
+  <div id="progress" style="margin-top: 10px">
+    <div class="bar" style="height: 18px; background: green; width: 0%">
+  </div>
+  <div id='upload_result'></div>
+
+  <br />
+  <p>Way 3</p>
 </div>
 
 <script type="text/javascript">
@@ -32,4 +44,17 @@
     }
   }
   $('#resume_attachment').change(function(){previewImg(this)})
+
+  $('#fileupload').fileupload({
+    dataType: 'json',
+    done: function(e, data) {
+      console.log(data)
+      console.log(data.result)  // response
+      console.log(data.result.files)
+    },
+    progressall: function(e, data) {
+      const progress = parseInt(data.loaded / data.total * 100, 10)
+      $('#progress .bar').css('width', progress + '%')
+    }
+  })
 </script>

@@ -22,6 +22,17 @@ class ResumesController < ApplicationController
     redirect_to resumes_path, notice: "The resume #{@resume.name} has been deleted."
   end
 
+  def upload
+    uploaded_file = params[:image_file]
+    original_filename = uploaded_file.original_filename
+    puts uploaded_file
+    puts original_filename
+    resume = Resume.new(name: original_filename)
+    resume.attachment = uploaded_file
+    resume.save!
+    render json: { msg: 'ok', url: resume.attachment.url }, status: 200
+  end
+
   private
   def resume_params
     params.require(:resume).permit(:name, :attachment)
