@@ -24,8 +24,10 @@
   <input id="fileupload" type="file" name="image_file" data-url="/upload">
   <div id="progress" style="margin-top: 10px">
     <div class="bar" style="height: 18px; background: green; width: 0%">
+    </div>
   </div>
-  <div id='upload_result'></div>
+  <div id='upload_result' style="margin-top: 10px">
+  </div>
 
   <br />
   <p>Way 3</p>
@@ -48,9 +50,18 @@
   $('#fileupload').fileupload({
     dataType: 'json',
     done: function(e, data) {
-      console.log(data)
-      console.log(data.result)  // response
-      console.log(data.result.files)
+      const res = data.result
+      console.log(res)
+      $('#upload_result').empty()
+      if (res.url) {
+        $('<img />').attr('src', res.url)
+                    .width(150)
+                    .height(150)
+                    .appendTo($('#upload_result'))
+      } else if (res.msg) {
+        $('<p />').text(res.msg)
+                  .appendTo($('#upload_result'))
+      }
     },
     progressall: function(e, data) {
       const progress = parseInt(data.loaded / data.total * 100, 10)
