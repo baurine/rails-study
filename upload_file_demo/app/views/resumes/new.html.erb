@@ -1,0 +1,71 @@
+<% if @resume.errors.any? %>
+  <div class="alert alert-danger">
+    <ul>
+      <% @resume.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
+
+<div class="well">
+  <p>Way 1</p>
+  <%= form_for @resume, html: {multipart: true} do |f| %>
+    <%= f.label :name %>
+    <%= f.text_field :name %>
+    <%= f.label :attachment %>
+    <%= f.file_field :attachment%>
+    <img id="preview">
+    <%= f.submit "Save", class: "btn btn-primary" %>
+  <% end %>
+
+  <br />
+  <p>Way 2</p>
+  <input id="fileupload" type="file" name="image_file" data-url="upload">
+  <div id="progress" style="margin-top: 10px">
+    <div class="bar" style="height: 18px; background: green; width: 0%">
+    </div>
+  </div>
+  <div id='upload_result' style="margin-top: 10px">
+  </div>
+
+  <br />
+  <p>Way 3</p>
+</div>
+
+<script type="text/javascript">
+  function previewImg(input) {
+    if (input.files && input.files[0]) {
+      let reader = new FileReader()
+      reader.onload = function(e) {
+        $('#preview').attr('src', e.target.result)
+                     .width(150)
+                     .height(150)
+      }
+      reader.readAsDataURL(input.files[0])
+    }
+  }
+  $('#resume_attachment').change(function(){previewImg(this)})
+
+  $('#fileupload').fileupload({
+    dataType: 'json',
+    done: function(e, data) {
+      const res = data.result
+      console.log(res)
+      $('#upload_result').empty()
+      if (res.url) {
+        $('<img />').attr('src', res.url)
+                    .width(150)
+                    .height(150)
+                    .appendTo($('#upload_result'))
+      } else if (res.msg) {
+        $('<p />').text(res.msg)
+                  .appendTo($('#upload_result'))
+      }
+    },
+    progressall: function(e, data) {
+      const progress = parseInt(data.loaded / data.total * 100, 10)
+      $('#progress .bar').css('width', progress + '%')
+    }
+  })
+</script>
