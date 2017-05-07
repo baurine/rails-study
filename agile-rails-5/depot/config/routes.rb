@@ -1,5 +1,9 @@
 Rails.application.routes.draw do
-  root 'store#index', as: 'store_index'
+  get 'admin/index'
+
+  get 'sessions/new'
+  get 'sessions/create'
+  get 'sessions/destroy'
 
   resources :orders
   resources :line_items
@@ -10,4 +14,6 @@ Rails.application.routes.draw do
   end
 
   resources :users
+
+  root 'store#index', as: 'store_index'
 end
