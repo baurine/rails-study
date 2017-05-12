@@ -21,10 +21,10 @@
           <% end %>
         <% end %>
         <ul>
-          <li><a href="http://www....">Home</a></li>
-          <li><a href="http://www..../faq">Questions</a></li>
-          <li><a href="http://www..../news">News</a></li>
-          <li><a href="http://www..../contact">Contact</a></li>
+          <li><a href="http://www...."><%= t('.home') %></a></li>
+          <li><a href="http://www..../faq"><%= t('.questions') %></a></li>
+          <li><a href="http://www..../news"><%= t('.news') %></a></li>
+          <li><a href="http://www..../contact"><%= t('.contact') %></a></li>
         </ul>
         <% if session[:user_id] %>
           <ul>
