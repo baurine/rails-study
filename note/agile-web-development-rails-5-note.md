@@ -1714,15 +1714,15 @@ partial templates 一般用来显示列表中的单个元素布局 (但也不限
 
 `app/views/articles/_article.html.erb`：
 
-<div class="article">
-  <div class="articleheader">
-    <h3><%= article.title %></h3>
-  </div>
+    <div class="article">
+      <div class="articleheader">
+        <h3><%= article.title %></h3>
+      </div>
 
-  <div class="articlebody">
-    <%= article.body %>
-  </div>
-</div>
+      <div class="articlebody">
+        <%= article.body %>
+      </div>
+    </div>
 
 在其它模板中使用 `render(partial:)` 方法来渲染 partial 模板。
 
@@ -1740,8 +1740,8 @@ partial templates 一般用来显示列表中的单个元素布局 (但也不限
 在 `render()` 方法中使用 collection 参数，指定一个集合，它会将集合中的每一个元素传进 partial 模板，然后依次渲染每一个元素。同时，还可以使用 `spacer_template` 参数指定每个 partial 模板之间的隔离模板。
 
     <%= render(partial:         "animal", 
-              collection:      %w{ ant bee cat dog elk },
-              spacer_template: "spacer")
+               collection:      %w{ ant bee cat dog elk },
+               spacer_template: "spacer")
     %>
 
 **Shared Templates**
@@ -2011,4 +2011,4 @@ haml 的缩进对齐很重要，像 python 一样是有语法意义的。
 
 希望本书能讲但没有能的内容：用 jbuilder 产生 json，rails for API，用 resque 执行定时任务。只能自己再看了。
 
-本书和 *Ruby on Rails Tutorial* 一书的比较，后者的例子丰富一些，复杂一些，而且是真正的 TDD，html 布局使用了比较多的 html5 标签，比如 `<nav>`、`<section>`，但是，在讲完例子后，并没有像本书一样，再例子之后，再重新把这些知识点深入一些地讲解，因此本书的知识面更比后者广。总之，两本书都值得看几遍。
+本书和 *Ruby on Rails Tutorial* 一书的比较，后者的例子丰富一些，复杂一些，而且是真正的 TDD，html 布局使用了比较多的 html5 标签，比如 `<nav>`、`<section>`，但是，在讲完例子后，并没有像本书一样，在例子之后，再重新把这些知识点深入一些地，串联地讲解，因此本书的知识面更比后者广。总之，两本书都值得看几遍。

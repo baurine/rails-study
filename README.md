@@ -8,6 +8,7 @@ Practice different rails samples follow different tutorials.
 1. [*Ruby on Rails Tutorail* Book Note 2](./note/ruby-on-rails-tutorial-note-2.md)
 1. [Youdao Note](http://note.youdao.com/share/?id=7e42bb0ae8c4c7a3f04cb941552cb711#/)
 1. [Upload File Note](./note/upload-file-note.md)
+1. [*Agile Web Development with Rails 5* Book Note](./note/agile-web-development-rails-5-note.md)
 
 ## Samples
 
@@ -54,3 +55,11 @@ The sample about how to upload file by CarrierWave gem and jQuery File Upload pl
 ![](./note/art/upload_file_1.png)
 
 ![](./note/art/upload_file_2.png)
+
+### `agile-rails-5`
+
+The samples follow the book *Agile Web Development with Rails 5*
+
+[Note](./note/agile-web-development-rails-5-note.md)
+
+![](./note/art/agile-rails-5-demo.png)
