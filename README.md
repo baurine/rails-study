@@ -15,6 +15,11 @@ Practice different rails samples follow different tutorials.
     * [Note 2 (12 - 22)](./notes/agile-web-development-rails-5/note-2.md)
     * [Note 3 (19 - 23)](./notes/agile-web-development-rails-5/note-3.md)
     * [Note 4 (21 - 24)](./notes/agile-web-development-rails-5/note-4.md)
+* Ruby MetaProgramming
+    * [Note 1 (Chapter 1 - 3)](./notes/ruby-metaprogramming/note-1.md)
+    * [Note 2 (Chapter 4)](./notes/ruby-metaprogramming/note-2.md)
+    * [Note 3 (Chapter 5)](./notes/ruby-metaprogramming/note-3.md)
+    * [Note 4 (Chapter 6 - 14)](./notes/ruby-metaprogramming/note-4.md)
 * [Upload File Note](./notes/upload-file-note.md)
 
 相关的其它项目：
