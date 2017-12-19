@@ -17,6 +17,11 @@ Practice different rails samples follow different tutorials.
     * [Note 4 (21 - 24)](./notes/agile-web-development-rails-5/note-4.md)
 * [Upload File Note](./notes/upload-file-note.md)
 
+相关的其它项目：
+
+- [capistrano-study](https://github.com/baurine/capistrano-study)
+- [rake-study](https://github.com/baurine/rake-study)
+
 ## Samples
 
 ### `simple_blog`
