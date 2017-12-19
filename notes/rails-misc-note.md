@@ -7,6 +7,8 @@
 1. sort by associate count
 1. 多态 (Polymorphic)
 1. ActiveRecord 的一些补充
+1. migration 的教训
+1. index 的重要性
 
 ## gem & bundle
 
@@ -139,3 +141,51 @@ rvm 其实跟 rails 没有什么关系，但 rvm 是 rails 开发中常用的工
 1. jsonb 类型的列
 
    jsonb 类型的引入让 PostgreSQL 有了类似 MongoDB 的能力，可以在此类型的列中存入任意类型的值，别看它名字中有 json，实际并不是只能存 json 格式的内容。我试过了，存 Integer，String，Hash 等都是可以的。但是要记住，你用什么类型存进去的，取出来就要按这种类型处理。
+
+## migration 的教训
+
+结论：不要在 migration 中进行耗时过长的操作，应该让 migration 的时间尽可能短，把耗时的操作放到 rake task 中，之后自己 ssh 到服务器操作或用 capistrano 辅助。
+
+起因：有一个 podcasts 的表，每个 podcast 有多个 episodes，现在要给 podcasts 表增加一列 `average_duration`，这个值是 podcast 的所有 episodes 的 duration 的平均值。
+
+这个增加列的 migration 是很简单的：
+
+    add_column :podcasts, :average_duration, :float
+
+考虑到执行这个 migration 后，我们还要为这一列计算值，以往我是把这种事情放在 rake task 中做的，比如：
+
+    task cal_podcast_average_duration: :environment do
+      Podcast.order(id: :desc).each(&:cal_duration)
+    end
+
+这样，布署之后，我们还需要手动 ssh 到服务器上执行这个 task。
+
+但这次，我想节省掉手动执行 task 这个步骤，想把这个事情放到 migration 中进行，这样，布署的时候就可以把这件事一块做了。
+
+代码大致是这样的：
+
+    def change
+      add_column :podcasts, :average_duration, :float
+
+      reversible do |change|
+        change.up do
+          Podcast.order(id: :desc).each(&:cal_duration)
+        end
+      end
+    end
+
+但是，由于疏忽，episodes 表中的 `podcast_id` 索引没做，而且由于数量巨大，这次的 migration 耗时漫长。这样导致的后果：
+
+1. 布署过程中一旦网络中断，布署将失败。而如果放到 rake task 中做，虽然也很耗时，但我们可以在服务器上使用 tmux 来做这件事，不用担心网络中断问题。
+1. 另外，如果放到 rake task，我们可以在布署后，给 episodes 表的 `podcast_id` 加上索引后，再执行这个 rake task，很灵活，但在 migration 中就不能这样做。
+
+虽然问题是由索引引起的，但从这次事件中明白，migration 应该越快越好，布署也要越快越好，耗时操作放到 rake task 中进行。
+
+## index 的重要性
+
+意识到 index 的重要性是从上面的事件中感受到的。在没有为 episodes 表的 `podcast_id` 列加索引前，migration 耗时达一个多小时，每个 podcast 耗时数百毫秒，加索引后，仅耗时数毫秒，差距几百倍，最终耗时从一个多小时降到了几分钟。
+
+平时怎么来注意这个索引的问题呢：
+
+1. 看 production.log，看哪个 sql query 耗时
+1. 用 `pg_top` 工具
