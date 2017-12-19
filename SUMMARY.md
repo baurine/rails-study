@@ -14,11 +14,14 @@
     * [Note 2 (5 - 6 章)](./notes/ruby-on-rails-tutorial/note-2.md)
     * [Note 3 (7 - 8 章)](./notes/ruby-on-rails-tutorial/note-3.md)
     * [Note 4 (9 - 10 章)](./notes/ruby-on-rails-tutorial/note-4.md)
-    * [Note 5 （11 - 14 章)](./notes/ruby-on-rails-tutorial/note-5.md)
+    * [Note 5 (11 - 14 章)](./notes/ruby-on-rails-tutorial/note-5.md)
 * Agile Web Development Rails 5
     * [Note 1 (1 - 11)](./notes/agile-web-development-rails-5/note-1.md)
     * [Note 2 (12 - 22)](./notes/agile-web-development-rails-5/note-2.md)
     * [Note 3 (19 - 23)](./notes/agile-web-development-rails-5/note-3.md)
     * [Note 4 (21 - 24)](./notes/agile-web-development-rails-5/note-4.md)
-* [Upload File Note](./notes/upload-file-note.md)
-
+* Misc
+    * [Ruby Misc Note](./notes/ruby-misc-note.md)
+    * [Rails Misc Note](./notes/rails-misc-note.md)
+    * [Resque Note](./notes/resque-note.md)
+    * [Upload File Note](./notes/upload-file-note.md)
