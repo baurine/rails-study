@@ -1,4 +1,4 @@
-# Ruby on Rails Tutorial Note 2
+# Ruby on Rails Tutorial - Note 5
 
 Note for the book [*Ruby on Rails Tutorial*](https://www.railstutorial.org/book).
 
