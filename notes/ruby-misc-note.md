@@ -2,6 +2,7 @@
 
 1. `attr_reader / attr_writer / attr_accessor`
 1. method / block / proc / lambda
+1. 操作文件系统
 
 ## `attr_reader / attr_writer / attr_accessor`
 
@@ -125,3 +126,9 @@ ruby-china 上有一篇帖子写得很详细：[聊聊 Ruby 中的 block, proc �
 [Ruby 元编程笔记](./ruby-metaprogramming/note-1.md)
 
 主要区别就是 return 的行为的不同。
+
+## 操作文件系统
+
+在网上找到一份讲解关于操作文件系统比较详细的文章：
+
+- [第 18 章　File 类与 Dir 类](https://www.kancloud.cn/imxieke/ruby-base/107306)
