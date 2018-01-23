@@ -9,6 +9,7 @@
 1. ActiveRecord 的一些补充
 1. migration 的教训
 1. index 的重要性
+1. 在本地跑 production
 
 ## gem & bundle
 
@@ -39,6 +40,10 @@
 
     # 这个命令有意思，启动一个 http 服务器查看已安装的所有 gem 的信息
     $ gem server
+
+升级 Gemfile 中的某个 gem：
+
+    $ bundle update gem_name
 
 ## rvm & gemset
 
@@ -189,3 +194,21 @@ rvm 其实跟 rails 没有什么关系，但 rvm 是 rails 开发中常用的工
 
 1. 看 production.log，看哪个 sql query 耗时
 1. 用 `pg_top` 工具
+
+## 在本地跑 production
+
+涉及到两个问题，一是如何是在本地运行 production 环境，二是如何在 production 环境下能够用上 developement 数据库中的数据。
+
+第一个问题的解决方案：[How to Run a Rails App in Production Locally](https://gist.github.com/rwarbelow/40bd72b2aee8888d6d91)
+
+其中最关键的一步是在启动 server 之前，先执行预编译 `bin/rake assets:precompile`，提前生成 assets 文件。
+
+第二个问题，数据的问题，一种解决办法是把 development 的数据库拷贝一份生成 production 数据库，但我并没有尝试，因为另一种方法更简单，直接修改 database.yml，设置 production 环境下直接使用 development 环境的数据库。
+
+    # config/database.yml
+    development:
+      adapter: postgresql
+      database: podknife_development
+    production: &PROD
+      adapter: postgresql
+      database: project_development
