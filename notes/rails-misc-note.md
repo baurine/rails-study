@@ -10,6 +10,8 @@
 1. migration 的教训
 1. index 的重要性
 1. 在本地跑 production
+1. asset pipeline / sprockets
+1. render js / pjax / turbolinks
 
 ## gem & bundle
 
@@ -201,7 +203,7 @@ rvm 其实跟 rails 没有什么关系，但 rvm 是 rails 开发中常用的工
 
 第一个问题的解决方案：[How to Run a Rails App in Production Locally](https://gist.github.com/rwarbelow/40bd72b2aee8888d6d91)
 
-其中最关键的一步是在启动 server 之前，先执行预编译 `bin/rake assets:precompile`，提前生成 assets 文件。
+其中最关键的一步是在启动 server 之前，先执行预编译 `bin/rake assets:precompile`，提前生成 assets 文件，这也是 development 和 production 环境最大的区别了。
 
 第二个问题，数据的问题，一种解决办法是把 development 的数据库拷贝一份生成 production 数据库，但我并没有尝试，因为另一种方法更简单，直接修改 database.yml，设置 production 环境下直接使用 development 环境的数据库。
 
@@ -212,3 +214,58 @@ rvm 其实跟 rails 没有什么关系，但 rvm 是 rails 开发中常用的工
     production: &PROD
       adapter: postgresql
       database: project_development
+
+## asset pipeline / sprockets
+
+- [Ruby on Rails 实战圣经 - Asset Pipeline](https://ihower.tw/rails/assets-pipeline-cn.html)
+- [RailsCasts #279 - Understanding the Asset Pipeline](http://railscasts.com/episodes/279-understanding-the-asset-pipeline)
+
+在 Rails 中常说的 asset pipeline 和 sprockets 基本上指的是一件事，asset pipeline 指的是一种技术，而 sprokcets 是实现这种技术的 gem。
+
+在生产环境下，asset pipeline 会把 app/assets/javascripts/application.js 中 require 的所有 js 文件 bundle 到 applicaton-[hahd].js 中，把 app/assets/stylesheets/application.css 中 require 或 import 的所有 css 文件 bundle 到 application-[hash].css 中。
+
+在 bundle 时候，sprockets 会根据文件后缀，从右往左，依次调用相应的预处理进行处理，比如 test.js.coffee.erb，依次调用 ruby, coffee, js 预处理器进行处理，最终生成 js 代码，test.css.scss.erb，依次调用 ruby, sass, css 预处理器进行处理，最终生成 css 代码。
+
+这个和目前前端的打包工具 Webpack 所做的工作类似。而且从 Rails 5.2 开始，Rails 内置了 Webpacker，一定程度上削弱了 asset pipeline 的作用。
+
+但 sprockets 的作用不只在于处理 asset pipeline，它还用在 render view 中，比如 render 一个 index.html.haml 文件，sprockets 会依次调用 haml, html 预处理器，并最终生成 html 代码。
+
+sprockets 提供了 `rake assets:precompile` task 来进行 bundle，`rake assets:clean` task 用来清除 bundle。一般需要布署到生产环境时才需要进行 bundle。
+
+在开发环境下，application.js 中 require 的 js 文件或库不会 bundle 到一个文件中，而是每一个 require 都单独 bundle 到一个文件中，比如 application.js 是这样的：
+
+    //= require jquery
+    //= require jquery_ujs
+    //= require turbolinks
+    //= require_tree .
+
+就会生成四个 js 文件，分别是 jquery.js, jquery_ujs.js, turbolinks.js, application.js。
+
+## render js / pjax / turbolinks
+
+- [在 Rails 中使用 JavaScript](https://ruby-china.github.io/rails-guides/v4.1/working_with_javascript_in_rails.html)
+- [HTML5 简介 (三)：利用 History API 无刷新更改地址栏](https://www.renfei.org/blog/html5-introduction-3-history-api.html)
+- [PJAX 的实现与应用](http://www.cnblogs.com/hustskyking/p/history-api-in-html5.html)
+- [Ruby on Rails 实战圣经 - Ajax 应用程式](https://ihower.tw/rails/ajax-cn.html)
+- [RailsCasts #294 - Playing with PJAX](http://railscasts.com/episodes/294-playing-with-pjax)
+- [RailsCasts #390 - Turbolinks](http://railscasts.com/episodes/390-turbolinks)
+
+这三种技术的相同点：
+
+- 都是 ajax 请求
+
+不同点：
+
+- render js - 返回的是 js 代码，客户端得知响应是 application/javascript 类型，就执行它。
+- pjax - HTML5 pushState + AJAX，客户端得到的是 HTML 代码，而且是 HTML 片断，然后客户端用这个片断替换旧的片断内容，同时用 HTML5 pushState API 修改 url。
+- turbolinks - 相比 pjax，turbolinks 的 ajax 请求，得到的是完整的 HTML 文档，然后客户端会检测 `<head>` 部分是不是和上一个页面的 `<head>` 相同，如果相同，就不再解析 javascript 和 css 链接，直接用新的 `<body>` 替换旧的 `<body>`，节省了重新解析和下载 javascript 和 css 的时间，加快了加载速度，同时和 pjax 一样，用 HTML5 pushState API 修改 url，但是如果 `<head>` 部分完全不一样，那么就会整体替换 `<html>`。
+
+在 rails view layout 中，对 link 加上 `remote: true` 属性 (将会转成标签的 data-remote 属性)，点击链接后，默认的跳转行为将会变成发送普通的 ajax 请求。服务端收到 ajax 请求后，可以 render json 给客户端返回 json，也可以 render js 给客户端返回一段 js 代码。客户端可以通过 response header 中的 Content-Type 取得响应的类型，如果是 application/json 则解析成 json，如果是 application/javascript，则执行它。
+
+为什么加上加上了 data-remote 属性的链接，点击后就会变成发 ajax 请求了呢，这是因为 rails 使用了 `jquery_ujs` 库，这个库会给所有带 data-remote 属性的链接加上 onclick 事件，在 onclick 事件中取消默认的跳转行为，改成发送 ajax 请求。
+
+pjax 也需要用专门的 js 库来实现，这个库的作用是，给所有带 data-pjax 属性的 `<a>` 标签加上 onclick 事件，在 onclick 事件中，使用 `e.preventDefault()` 取消默认的跳转行为，改成发送 ajax 请求，而且不是普通类型的 ajax，是 pjax 类型的 ajax，一般会在 request header 中使用 `X-PJAX: true` 来表明这是 pjax 类型的 ajax，服务端收到此类型的 ajax 请求后，返回 HTML 片断，客户端用新的 HTML 片断替代旧的 HTML 片断，并更新 url。
+
+turoblinks 同样需要用专门的 js 库来实现，它的工作和 pjax 库类似，给所有没有声明 data-no-turbolink 属性的 `<a>` 标签加上 onclick 事件，在 onclick 事件中，取消默认跳转行为，改为发送 turbolinks 类型的 ajax 请求，并处理 ajax 请求的响应，解析返回的 HTML 的整个文档，根据 `<head>` 部分的内容选择只替换 `<body>` 还是替换整个 `<html>`，并更新 url。
+
+使用了 trubolinks 后对原来 js 逻辑最大的改变是就是要用 `turbolinks:load` 事件替换 `$(document).ready()` 事件。
