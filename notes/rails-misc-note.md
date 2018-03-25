@@ -12,6 +12,7 @@
 1. 在本地跑 production
 1. asset pipeline / sprockets
 1. render js / pjax / turbolinks
+1. 在 controller 中使用 view 方法
 
 ## gem & bundle
 
@@ -269,3 +270,13 @@ pjax 也需要用专门的 js 库来实现，这个库的作用是，给所有�
 turoblinks 同样需要用专门的 js 库来实现，它的工作和 pjax 库类似，给所有没有声明 data-no-turbolink 属性的 `<a>` 标签加上 onclick 事件，在 onclick 事件中，取消默认跳转行为，改为发送 turbolinks 类型的 ajax 请求，并处理 ajax 请求的响应，解析返回的 HTML 的整个文档，根据 `<head>` 部分的内容选择只替换 `<body>` 还是替换整个 `<html>`，并更新 url。
 
 使用了 trubolinks 后对原来 js 逻辑最大的改变是就是要用 `turbolinks:load` 事件替换 `$(document).ready()` 事件。
+
+## 在 controller 中使用 view 方法
+
+参考：
+
+- [Using helper methods inside your controllers](https://medium.com/little-programming-joys/using-helper-methods-inside-your-controllers-51dd5e39ee72)
+
+示例：
+
+    @query = ActionController::Base.helpers.sanitize(params[:q])
