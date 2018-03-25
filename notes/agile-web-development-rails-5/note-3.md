@@ -163,7 +163,7 @@ Active Model 的生命周期的各种回调。
 
 一图胜千言：
 
-![](./art/agile-web-model-callbacks.png)
+![](../art/agile-web-model-callbacks.png)
 
 除了图中的回调外，还有比如 `after_find`，`after_initialize`。
 
@@ -488,6 +488,10 @@ session 的存储方式 `session_store`，在 rails 中多达 6 种：
 session 在 cookie 中存储的数据，一般都是以加密形式存在的，至少在 rails 中是这样的，在服务端用密钥 (一般是对称密钥) 加密，返回给客户端，客户端请求时带上 session，然后在服务端再进行解密。
 
 而 cookie 中除了 session 的数据外，其它的一般来说是明文的。
+
+其它参考：
+
+- [[译] Rails Sessions 是如何工作的？](http://grantcss.com/blog/2015/03/23/how-rails-sessions-work/)
 
 **Flash - Communicating Between Actions**
 
