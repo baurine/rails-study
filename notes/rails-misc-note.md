@@ -13,6 +13,7 @@
 1. asset pipeline / sprockets
 1. render js / pjax / turbolinks
 1. 在 controller 中使用 view 方法
+1. `find_in_batches`
 
 ## gem & bundle
 
@@ -280,3 +281,32 @@ turoblinks 同样需要用专门的 js 库来实现，它的工作和 pjax 库�
 示例：
 
     @query = ActionController::Base.helpers.sanitize(params[:q])
+
+## `find_in_batches`
+
+参考：
+
+- [`find_in_batches`](http://api.rubyonrails.org/classes/ActiveRecord/Batches.html#method-i-find_in_batches)
+
+写了一个 task，对一个有超过 90 万条记录的表的每一个记录进行操作，结果每次跑到 30 万条时，机器内存耗尽，系统就把 rails 进程杀掉了。代码大概是这样的：
+
+    desc 'update episodes'
+    task update_episodes: :environment do
+        Episode.all.each do |ep|
+            ep.update(...)
+        end
+    end
+
+我正准备改程序让它每次只操作 30 万条记录，老板推荐我使用一个方法叫 `find_in_batches`，第一次听说这个方法，一试，果然好用，故记录在此。
+
+修改后代码如下：
+
+    desc 'update episodes'
+    task update_episodes: :environment do
+        Episode.find_in_batches(batch_size: 10000) do |group|
+            sleep(50)
+            group.each do |ep|
+                ep.update(...)
+            end
+        end
+    end
