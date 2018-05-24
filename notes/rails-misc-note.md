@@ -13,7 +13,7 @@
 1. asset pipeline / sprockets
 1. render js / pjax / turbolinks
 1. 在 controller 中使用 view 方法
-1. `find_in_batches`
+1. `find_in_batches` & `find_each`
 
 ## gem & bundle
 
@@ -282,7 +282,7 @@ turoblinks 同样需要用专门的 js 库来实现，它的工作和 pjax 库�
 
     @query = ActionController::Base.helpers.sanitize(params[:q])
 
-## `find_in_batches`
+## `find_in_batches` & `find_each`
 
 参考：
 
@@ -309,4 +309,10 @@ turoblinks 同样需要用专门的 js 库来实现，它的工作和 pjax 库�
                 ep.update(...)
             end
         end
+    end
+
+后来在看别人的代码时发现还有一个类似的方法：`find_each`，其实没有太大差别，前者可以设定 `batch_size` 参数，后者固定是 1000。相当于后者是前者的一个封装。使用上略有区别，前者传到 block 中的是一个 array，后者是具体的 object。
+
+    Person.find_each(:conditions => "age > 21") do |person|
+        person.party_all_night!
     end
