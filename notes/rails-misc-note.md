@@ -15,6 +15,7 @@
 1. 在 controller 中使用 view 方法
 1. `find_in_batches` & `find_each`
 1. 在路由中使用 constraints
+1. jquery-rails & jquery-ujs & rails-ujs
 
 ## gem & bundle
 
@@ -265,7 +266,7 @@ sprockets 提供了 `rake assets:precompile` task 来进行 bundle，`rake asset
 
 在 rails view layout 中，对 link 加上 `remote: true` 属性 (将会转成标签的 data-remote 属性)，点击链接后，默认的跳转行为将会变成发送普通的 ajax 请求。服务端收到 ajax 请求后，可以 render json 给客户端返回 json，也可以 render js 给客户端返回一段 js 代码。客户端可以通过 response header 中的 Content-Type 取得响应的类型，如果是 application/json 则解析成 json，如果是 application/javascript，则执行它。
 
-为什么加上加上了 data-remote 属性的链接，点击后就会变成发 ajax 请求了呢，这是因为 rails 使用了 `jquery_ujs` 库，这个库会给所有带 data-remote 属性的链接加上 onclick 事件，在 onclick 事件中取消默认的跳转行为，改成发送 ajax 请求。
+为什么加上加上了 data-remote 属性的链接，点击后就会变成发 ajax 请求了呢，这是因为 rails 使用了 `jquery_ujs` 库 (在 rails 5.1 后，rails deprecated 了 jQuery，不再默认使用 jQuery 了，所以这个库变成了 `rails_ujs`)，这个库会给所有带 data-remote 属性的链接加上 onclick 事件，在 onclick 事件中取消默认的跳转行为，改成发送 ajax 请求。
 
 pjax 也需要用专门的 js 库来实现，这个库的作用是，给所有带 data-pjax 属性的 `<a>` 标签加上 onclick 事件，在 onclick 事件中，使用 `e.preventDefault()` 取消默认的跳转行为，改成发送 ajax 请求，而且不是普通类型的 ajax，是 pjax 类型的 ajax，一般会在 request header 中使用 `X-PJAX: true` 来表明这是 pjax 类型的 ajax，服务端收到此类型的 ajax 请求后，返回 HTML 片断，客户端用新的 HTML 片断替代旧的 HTML 片断，并更新 url。
 
@@ -332,3 +333,59 @@ turoblinks 同样需要用专门的 js 库来实现，它的工作和 pjax 库�
     get '/', to: 'search_hints#index', constraints: lambda { |req| !req.query_parameters['hint'].nil? }
     get '/', to: 'search#index', constraints: lambda { |req| !req.query_parameters['q'].nil? }
     root 'home#index'
+
+## jquery-rails & jquery-ujs & rails-ujs
+
+- [jquery-rails](https://github.com/rails/jquery-rails)
+- [jquery-ujs](https://github.com/rails/jquery-ujs)
+- [rails-ujs](https://github.com/rails/rails-ujs/tree/master)
+
+我们一步步来解释这些东西。
+
+首先，jquery-rails 是一个 gem，后二者是独立的 js 库。
+
+在 rails 拥抱 webpacker 之前，如果想在 rails 中使用一些开源的第三方 javascript 库，除了直接把它们的文件拷过来之外，还有一种用法，就是把这些 js 以及配套的 css/assets 等包装成一个 gem，然后你就可以方便地使用 bundler 来安装这个 gem，从而导入相应的 javascript 库。
+
+安装这些 gem 后，你还需要在 application.js 和 application.css 中手动声明导入相应的 js 库和 css 文件。
+
+比如 jquery-rails 这个 gem 就包装了 jQuery 这个 js 库。安装了这个 gem 后，就可以在 application.js 中声明使用 jQuery 这个 js 库。
+
+    // application.js
+    //= require jquery
+
+同时，jquery-rails 还包装了另一个基于 jQuery 实现的库：jquery-ujs。
+
+jquery-ujs 是干什么用的呢，它主要是用来给一些 DOM 添加一些额外的很有用的功能，使用 `data-*` 属性。比如你给一个 button 添加一个 `data-disable="true"` 的属性，这个按键按下后，一定时间内就不能再点击了，以消除抖动，给 form 元素加上 `data-remote="true"` 的属性后，这个 form 的提交就变成了 ajax 请求，而不再是普通请求。
+
+更加详细的功能介绍：[A definitive guide to Rails’s unobtrusive JavaScript adapter](https://m.patrikonrails.com/a-definitive-guide-to-railss-unobtrusive-javascript-adapter-ef13bd047fff)
+
+以及看官方文档。
+
+我们也需要在 applicaiton.js 中声明导入这个 js 库。
+
+    // application.js
+    //= require jquery
+    //= require jquery_ujs
+
+[Rails Assets](https://rails-assets.org/#/) 这个网站提供了将 js 库封装成 gem 的功能，同时提供检索，你可以在这里搜索别人有没有封装过你想用的 js 库，如果有，就直接拿来用，否则你就要自己封装了。
+
+然后从 rails 5.1 开始，rails 开始拥抱 webpack，把 webpack 这个工具封装成了 wepbacker gem 并集成到了 rails 5.1 中，并放弃了对 jQuery 的默认使用和依赖。但 `jquery_ujs` 这个这么好用的库是依赖 jQuery 的呀，那怎么办呢，重写呗，于是 rails 把 `jquery_ujs` 用 DOM 原生 API 重写了，这样就不用依赖 jQuery 了，并改名为 `rails-ujs`，同时也把它用 gem 封装了一下以方便在 rails 中使用，封装好的 gem 也叫 `rails-ujs`。
+
+所以你要使用 rails-ujs 的话，三步：
+
+    // Gemfile
+    gem 'rails-ujs'
+
+    // command line
+    $ bundle
+
+    // application.js
+    //= require rails_ujs
+
+或者如果想在 npm 中使用，直接用 `npm install rails-ujs --save`。
+
+参考链接：[Rails 5.1 has dropped dependency on jQuery from the default stack](https://blog.bigbinary.com/2017/06/20/rails-5-1-has-dropped-dependency-on-jquery-from-the-default-stack.html)
+
+但由于 `rails-ujs` 是如此的基础，几乎是 rails 的标配，所以后来 rails 干脆把它深度集成到 rails 的源码中了，这样，`rails-ujs` 其实不完全不需要了，因为新的 rails 中已经内置了它的所有功能。(有待确认是不是完全不需要自己手动 `require rails_ujs` 了)
+
+> rails-ujs was [moved into Rails itself](https://github.com/rails/rails/commit/ad3a47759e67a411f3534309cdd704f12f6930a7) in Rails 5.1.0.
