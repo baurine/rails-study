@@ -14,6 +14,7 @@
 1. render js / pjax / turbolinks
 1. 在 controller 中使用 view 方法
 1. `find_in_batches` & `find_each`
+1. 在路由中使用 constraints
 
 ## gem & bundle
 
@@ -316,3 +317,18 @@ turoblinks 同样需要用专门的 js 库来实现，它的工作和 pjax 库�
     Person.find_each(:conditions => "age > 21") do |person|
         person.party_all_night!
     end
+
+## 在路由中使用 constraints
+
+起因，HomeController 中混杂了太多功能，导致代码庞大。它包括以下功能：
+
+1. 展示首页，包括随机推荐内容，最近添加内容，最多人访问内容等，路由是 `/`
+1. 搜索功能，路由是 `/?q=xxx`
+1. 搜索提示功能，路由是 `/?q=xxx&hint=1`
+
+想把它们拆分到不同的 controller 中，但是它们的 path 是一样的，只是查询参数不一样，那怎么设置路由呢，用 constraints。示例如下：
+
+    # routes.rb
+    get '/', to: 'search_hints#index', constraints: lambda { |req| !req.query_parameters['hint'].nil? }
+    get '/', to: 'search#index', constraints: lambda { |req| !req.query_parameters['q'].nil? }
+    root 'home#index'
