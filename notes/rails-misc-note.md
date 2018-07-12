@@ -16,6 +16,7 @@
 1. `find_in_batches` & `find_each`
 1. 在路由中使用 constraints
 1. jquery-rails & jquery-ujs & rails-ujs
+1. has_many / through / source / source_type / as / alias_attribute
 
 ## gem & bundle
 
@@ -342,9 +343,7 @@ turoblinks 同样需要用专门的 js 库来实现，它的工作和 pjax 库�
 
 我们一步步来解释这些东西。
 
-首先，jquery-rails 是一个 gem，后二者是独立的 js 库。
-
-在 rails 拥抱 webpacker 之前，如果想在 rails 中使用一些开源的第三方 javascript 库，除了直接把它们的文件拷过来之外，还有一种用法，就是把这些 js 以及配套的 css/assets 等包装成一个 gem，然后你就可以方便地使用 bundler 来安装这个 gem，从而导入相应的 javascript 库。
+在 rails 拥抱 webpacker 之前，如果想在 rails 中使用一些开源的第三方 javascript 库，除了直接把它们的文件拷过来之外，还有一种用法，就是把这些 js 以及配套的 css/assets 等包装成一个 gem，然后你就可以方便地使用 bundler 来安装这个 gem，从而导入相应的 javascript 库。包装成的 gem 的名字一般是在原来库的名字后面加上 `-rails` 后缀，比如 `jquery-rails`。
 
 安装这些 gem 后，你还需要在 application.js 和 application.css 中手动声明导入相应的 js 库和 css 文件。
 
@@ -386,6 +385,138 @@ jquery-ujs 是干什么用的呢，它主要是用来给一些 DOM 添加一些�
 
 参考链接：[Rails 5.1 has dropped dependency on jQuery from the default stack](https://blog.bigbinary.com/2017/06/20/rails-5-1-has-dropped-dependency-on-jquery-from-the-default-stack.html)
 
-但由于 `rails-ujs` 是如此的基础，几乎是 rails 的标配，所以后来 rails 干脆把它深度集成到 rails 的源码中了，这样，`rails-ujs` 其实不完全不需要了，因为新的 rails 中已经内置了它的所有功能。(有待确认是不是完全不需要自己手动 `require rails_ujs` 了)
+但由于 `rails-ujs` 是如此的基础，几乎是 rails 的标配，所以后来 rails 干脆把它深度集成到 rails 的源码中了，这样，`rails-ujs` 其实不完全不需要了，因为新的 rails 中已经内置了它的所有功能。
+
+虽然 rails-ujs 已经内置了，但在最新的 rails 5.2 的项目模板中，还是需要手动在 application.js 中 `require rails-ujs` 的 (而且不是 `requre rails_ujs`)，默认内容如下所示。
+
+    // application.js
+    //= require rails-ujs
+    //= require activestorage
+    //= require turbolinks
+    //= require_tree .
 
 > rails-ujs was [moved into Rails itself](https://github.com/rails/rails/commit/ad3a47759e67a411f3534309cdd704f12f6930a7) in Rails 5.1.0.
+
+## has_many / through / source / source_type / as / alias_attribute
+
+Ref: [Understanding :source option of has_one/has_many through of Rails](https://stackoverflow.com/questions/4632408/understanding-source-option-of-has-one-has-many-through-of-rails)
+
+假设我们有一个 users 表，一个 posts 表，每个用户可以发表多个 post，也可以 like 别人或自己的 post，因此我们需要一个 likes 的关联表。它们的定义如下：
+
+    class User < ApplicationRecord
+      has_many :posts
+
+      has_many :likes
+    end
+
+    class Like < ApplicationRecord
+      belongs_to :user
+      belongs_to :post
+    end
+
+    class Post < ApplicationRecord
+      belongs_to :user
+      has_many :likes
+    end
+
+假如我们想得到 like 了某篇 post 的 users，那么我们要给 Post 增加一个 users 的属性，这个 users 属性必须通过关联表 likes 来得到，因此可以这样定义：
+
+    class Post < ApplicationRecord
+      belongs_to :user
+
+      has_many :likes
+      has_many :users, through: :likes
+    end
+
+当我们使用 `has_many :users, throught: :likes` 的语法时，rails 会自动去 likes 关联表找对应的 users。
+
+通过上面的操作，我们可以用 `post.user` 得到 post 的作者，用 `post.users` 得到 post 被哪些用户所 like 了。
+
+但 `post.users` 很明显意义不够明确，如果能用 `post.liked_users` 来得到那些 like 了此 post 的用户，那就更好。
+
+因此我们尝试用 `has_many :liked_users, through: :likes` 来定义，但运行出错，rails 并没有那么智能，它并不知道通过 likes 关联表如何得到 `liked_users`，因此我们要显式地告诉它，实际是要去找 users。因此，这就是 source 参数的作用：
+
+    has_many :liked_users, through: :likes, source: :users
+
+也可以通过 alias_attribute 来实现 (已验证可行)
+
+    class Post < ApplicationRecord
+      belongs_to :user
+
+      has_many :likes
+      has_many :users, through: :likes
+      alias_attribute :liked_users, :users
+    end
+
+但也不是所有情况都可以用 alias。我们来看如何得到 user 所 like 的所有 post，本来我们可以很简单地使用 `has_many :posts, through: :likes` 来得到，但首先，user 已经有同名的 posts 属性了，名字产生了冲突 (因此这种情况下 alias 就没法工作了)，其次，单纯的 `user.posts` 意义也不明确，人们更容易理解它为这个用户发表的 posts，而不是 like 的 posts，所以我们用下面的语句来解决上面两个问题：
+
+    class User < ApplicationRecord
+      has_many :posts
+
+      has_many :likes
+      has_many :liked_posts, through: :likes, source: :posts
+    end
+
+如果关联表关联的是多态对象，那么在 source 后面，还有一个 `source_type` 的参数，它必须和 `as` 参数配套使用。
+
+看这里的解释：[Need help to understand :source_type option of has_one/has_many through of Rails](https://stackoverflow.com/questions/9500922/need-help-to-understand-source-type-option-of-has-one-has-many-through-of-rails).
+
+示例代码：
+
+    class Tag < ActiveRecord::Base
+      has_many :taggings, :dependent => :destroy
+      has_many :books,  :through => :taggings, :source => :taggable, :source_type => "Book"
+      has_many :movies, :through => :taggings, :source => :taggable, :source_type => "Movie"
+    end
+
+    # 关联表，多态表，实现会生成三列：tag_id, taggable_id, taggable_type
+    class Tagging < ActiveRecord::Base
+      belongs_to :tag
+      belongs_to :taggable, :polymorphic => true
+    end
+
+    class Book < ActiveRecord::Base
+      has_many :taggings, :as => :taggable
+      has_many :tags, :through => :taggings
+    end
+
+    class Movie < ActiveRecord::Base
+      has_many :taggings, :as => :taggable
+      has_many :tags, :through => :taggings
+    end
+
+如果以上面的 Like 为例，假设 user 即可以 like 一篇 post，也可以 like 一个 comment，那么 model 关系是这样的：
+
+    class User < ApplicationRecord
+      has_many :posts, dependent: :destroy
+      has_many :comments, dependent: :destroy
+
+      has_many :likes, dependent: :destroy
+      has_many :liked_posts,    through: :likes,    source: :likeable, source_type: 'Post'
+      has_many :liked_comments, through: :comments, source: :likeable, source_type: 'Comment'
+    end
+
+    # 关联表，多态表，生成三列：user_id, likeable_id, likeable_type
+    class Like < ApplicationRecord
+      belongs_to :user
+
+      belongs_to :likeable, polymorphic: true
+    end
+
+    class Post < ApplicationRecord
+      belongs_to :user
+
+      has_many :likes, as: :likeable
+      # has_many :users, through: :likes
+      # alias_attribute :liked_users, :users
+      has_many :liked_user, through: :likes, source: :users
+    end
+
+    class Comment < ApplicationRecord
+      belongs_to :user
+
+      has_many :likes, as: :likeable
+      # has_many :users, through: :likes
+      # alias_attribute :liked_users, :users
+      has_many :liked_user, through: :likes, source: :users
+    end
