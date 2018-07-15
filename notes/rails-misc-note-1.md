@@ -22,6 +22,7 @@ Note 1
 
 [Note 2](./rails-misc-note-2.md)
 
+1. class_name
 1. routes 中的 resource 与 resources 的区别
 
 ## gem & bundle
