@@ -1,6 +1,8 @@
-# Rails Misc Note
+# Rails Misc Note 1
 
-会记录一些 rails 项目中遇到的比较常见的问题及解决方法。
+记录一些 rails 项目中遇到的比较常见的问题及解决方法。
+
+Note 1
 
 1. gem & bundle
 1. rvm & gemset
@@ -17,6 +19,10 @@
 1. 在路由中使用 constraints
 1. jquery-rails & jquery-ujs & rails-ujs
 1. has_many / through / source / source_type / as / alias_attribute
+
+[Note 2](./rails-misc-note-2.md)
+
+1. routes 中的 resource 与 resources 的区别
 
 ## gem & bundle
 

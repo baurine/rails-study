@@ -22,7 +22,7 @@
     * [Note 4 (21 - 24)](notes/agile-web-development-rails-5/note-4.md)
 * Misc
     * [Ruby Misc Note](notes/ruby-misc-note.md)
-    * [Rails Misc Note](notes/rails-misc-note.md)
+    * [Rails Misc Note](notes/rails-misc-note-1.md)
     * [Upload File Note](notes/upload-file-note.md)
     * [Resque Note](notes/resque-note.md)
     * [Sidekiq Note](notes/sidekiq-note.md)
