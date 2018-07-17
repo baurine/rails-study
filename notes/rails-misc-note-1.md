@@ -18,12 +18,11 @@ Note 1
 1. `find_in_batches` & `find_each`
 1. 在路由中使用 constraints
 1. jquery-rails & jquery-ujs & rails-ujs
-1. has_many / through / source / source_type / as / alias_attribute
+1. routes 中的 resource 与 resources 的区别
 
 [Note 2](./rails-misc-note-2.md)
 
-1. class_name
-1. routes 中的 resource 与 resources 的区别
+1. has_many / through / source / source_type / as / alias_attribute / class_name
 
 ## gem & bundle
 
@@ -404,126 +403,67 @@ jquery-ujs 是干什么用的呢，它主要是用来给一些 DOM 添加一些�
 
 > rails-ujs was [moved into Rails itself](https://github.com/rails/rails/commit/ad3a47759e67a411f3534309cdd704f12f6930a7) in Rails 5.1.0.
 
-## has_many / through / source / source_type / as / alias_attribute
+## routes 中的 resource 与 resources 的区别
 
-Ref: [Understanding :source option of has_one/has_many through of Rails](https://stackoverflow.com/questions/4632408/understanding-source-option-of-has-one-has-many-through-of-rails)
+以一个博客网站为例，一个用户可以给一篇文章创建多个评论，即 routes 应该是这样的：
 
-假设我们有一个 users 表，一个 posts 表，每个用户可以发表多个 post，也可以 like 别人或自己的 post，因此我们需要一个 likes 的关联表。它们的定义如下：
-
-    class User < ApplicationRecord
-      has_many :posts
-
-      has_many :likes
+    resources :posts do
+      resources :comments
     end
 
-    class Like < ApplicationRecord
-      belongs_to :user
-      belongs_to :post
+这样，在用户登录的情况下，创建一个新的评论的 API 是 `POST /posts/:post_id/comments`，删除一个 comment 的 API 是 `DELETE /posts/:post_id/comments/:id`，我们也通过下面的路由来快速地删除一个 comment：
+
+    resources :comments, except: :create
+
+这样，删除一个 comment 也可以用 API: `DELETE /comments/:id`。
+
+和 comment 允许多个不一样的是，如果允许用户对一篇文章进行 favorite/like/star，无论操作多少次，都只会生成一个 favorite/like/star。假如我们对一篇文章进行 like，可以用 API `POST /posts/:post_id/likes`，但是删除的时候，我们更希望用 `DELETE /posts/:post_id/likes`，而不是 `DELETE /posts/:post_id/likes/:id` 或 `DELETE /likes/:id`，因为每个用户对一篇文章只有一个 like，那么此时，我们就要在 routes 中使用 resource，而不是 resources 了：
+
+    resources :posts do
+      resources :comments
+      resource  :likes
     end
 
-    class Post < ApplicationRecord
-      belongs_to :user
-      has_many :likes
+`resources :likes` 将会生成 `DELETE /posts/:post_id/likes/:id` 的 API，而 `resource :likes` 生成 `DELETE /posts/:post_id/likes` 的 API。
+
+至于 resource 后面应该用 `like` 还是 `likes`，其实也不好定夺，因为对某篇 post 来说，它是可以有多个 likes 的呀，但对于一个用户来说，它对某篇 post 只能有一个 like，所以我持保留意见，`like` 或 `likes` 都可以。
+
+如果是 `resouce :like`，那么生成的 API 是这样的：`POST /posts/:post_id/like`, `DELETE /posts/:post_id/like`。
+
+阅读了 [GitHub 关于此类 API 的设计](https://developer.github.com/v3/activity/starring/#star-a-repository) 后，我觉得上面这个 API 更好的设计是这样的：
+
+    # 获取自己或某人是否 like 了某篇文章
+    GET /user/liked/posts/:post_id
+    GET /users/:user_id/liked/posts/:post_id
+
+    # like 一篇文章，操作是幂等的
+    PUT /user/liked/posts/:post_id
+
+    # un-like 一篇文章
+    DELETE /user/liked/posts/:post_id
+
+相比上面的设计更合理的地方在于，like post 应该是幂等操作，而一般来说 PUT 是幂等的，而 POST 不是。在 API url 中同时体现了主语和宾语，也更合理。
+
+那这样的 API routes 应该怎么写呢？
+
+    resource :user do
+      resource :liked, only: [] do
+        resources :posts, only: [:index, :show, :update, :destroy], controller: :liked, param: :post_id
+      end
     end
 
-假如我们想得到 like 了某篇 post 的 users，那么我们要给 Post 增加一个 users 的属性，这个 users 属性必须通过关联表 likes 来得到，因此可以这样定义：
+得到的路由是这样的：
 
-    class Post < ApplicationRecord
-      belongs_to :user
+    user_liked_posts GET    /user/liked/posts(.:format)                         liked#index
+     user_liked_post GET    /user/liked/posts/:post_id(.:format)                liked#show
+                     PATCH  /user/liked/posts/:post_id(.:format)                liked#update
+                     PUT    /user/liked/posts/:post_id(.:format)                liked#update
+                     DELETE /user/liked/posts/:post_id(.:format)                liked#destroy
 
-      has_many :likes
-      has_many :users, through: :likes
-    end
+注意，如果你不加上 `controller: :liked, param: :post_id`，那么得到的默认路由是这样的：
 
-当我们使用 `has_many :users, throught: :likes` 的语法时，rails 会自动去 likes 关联表找对应的 users。
-
-通过上面的操作，我们可以用 `post.user` 得到 post 的作者，用 `post.users` 得到 post 被哪些用户所 like 了。
-
-但 `post.users` 很明显意义不够明确，如果能用 `post.liked_users` 来得到那些 like 了此 post 的用户，那就更好。
-
-因此我们尝试用 `has_many :liked_users, through: :likes` 来定义，但运行出错，rails 并没有那么智能，它并不知道通过 likes 关联表如何得到 `liked_users`，因此我们要显式地告诉它，实际是要去找 users。因此，这就是 source 参数的作用：
-
-    has_many :liked_users, through: :likes, source: :users
-
-也可以通过 alias_attribute 来实现 (已验证可行)
-
-    class Post < ApplicationRecord
-      belongs_to :user
-
-      has_many :likes
-      has_many :users, through: :likes
-      alias_attribute :liked_users, :users
-    end
-
-但也不是所有情况都可以用 alias。我们来看如何得到 user 所 like 的所有 post，本来我们可以很简单地使用 `has_many :posts, through: :likes` 来得到，但首先，user 已经有同名的 posts 属性了，名字产生了冲突 (因此这种情况下 alias 就没法工作了)，其次，单纯的 `user.posts` 意义也不明确，人们更容易理解它为这个用户发表的 posts，而不是 like 的 posts，所以我们用下面的语句来解决上面两个问题：
-
-    class User < ApplicationRecord
-      has_many :posts
-
-      has_many :likes
-      has_many :liked_posts, through: :likes, source: :posts
-    end
-
-如果关联表关联的是多态对象，那么在 source 后面，还有一个 `source_type` 的参数，它必须和 `as` 参数配套使用。
-
-看这里的解释：[Need help to understand :source_type option of has_one/has_many through of Rails](https://stackoverflow.com/questions/9500922/need-help-to-understand-source-type-option-of-has-one-has-many-through-of-rails).
-
-示例代码：
-
-    class Tag < ActiveRecord::Base
-      has_many :taggings, :dependent => :destroy
-      has_many :books,  :through => :taggings, :source => :taggable, :source_type => "Book"
-      has_many :movies, :through => :taggings, :source => :taggable, :source_type => "Movie"
-    end
-
-    # 关联表，多态表，实现会生成三列：tag_id, taggable_id, taggable_type
-    class Tagging < ActiveRecord::Base
-      belongs_to :tag
-      belongs_to :taggable, :polymorphic => true
-    end
-
-    class Book < ActiveRecord::Base
-      has_many :taggings, :as => :taggable
-      has_many :tags, :through => :taggings
-    end
-
-    class Movie < ActiveRecord::Base
-      has_many :taggings, :as => :taggable
-      has_many :tags, :through => :taggings
-    end
-
-如果以上面的 Like 为例，假设 user 即可以 like 一篇 post，也可以 like 一个 comment，那么 model 关系是这样的：
-
-    class User < ApplicationRecord
-      has_many :posts, dependent: :destroy
-      has_many :comments, dependent: :destroy
-
-      has_many :likes, dependent: :destroy
-      has_many :liked_posts,    through: :likes,    source: :likeable, source_type: 'Post'
-      has_many :liked_comments, through: :comments, source: :likeable, source_type: 'Comment'
-    end
-
-    # 关联表，多态表，生成三列：user_id, likeable_id, likeable_type
-    class Like < ApplicationRecord
-      belongs_to :user
-
-      belongs_to :likeable, polymorphic: true
-    end
-
-    class Post < ApplicationRecord
-      belongs_to :user
-
-      has_many :likes, as: :likeable
-      # has_many :users, through: :likes
-      # alias_attribute :liked_users, :users
-      has_many :liked_user, through: :likes, source: :users
-    end
-
-    class Comment < ApplicationRecord
-      belongs_to :user
-
-      has_many :likes, as: :likeable
-      # has_many :users, through: :likes
-      # alias_attribute :liked_users, :users
-      has_many :liked_user, through: :likes, source: :users
-    end
+    user_liked_posts GET    /user/liked/posts(.:format)                         posts#index
+     user_liked_post GET    /user/liked/posts/:id(.:format)                     posts#show
+                     PATCH  /user/liked/posts/:id(.:format)                     posts#update
+                     PUT    /user/liked/posts/:id(.:format)                     posts#update
+                     DELETE /user/liked/posts/:id(.:format)                     posts#destroy
