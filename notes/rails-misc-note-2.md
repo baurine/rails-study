@@ -2,6 +2,7 @@
 
 1. has_many / through / source / source_type / as / alias_attribute / class_name
 1. PGconn.escape_bytea 处理非法字符
+1. model need to reload after saving fail
 
 ## has_many / through / source / source_type / as / alias_attribute / class_name
 
@@ -284,3 +285,21 @@ employees 表中有一列 `manager_id` 来关联到 employees 表中的另一个
         PGconn.unescape_bytea(ori_xml)
       end
     end
+
+## model need to reload after saving fail
+
+示例代码：
+
+    # podcast.rb
+    def update_image_url(new_image_url)
+      return unless new_image_url
+
+      if downloaded_cover_img.url.nil? || (new_image_url != image_url)
+        # may fail, if fail, reload
+        self.remote_downloaded_cover_img_url = new_image_url
+        save || reload
+      end
+      update(image_url: new_image_url)
+    end
+
+如果 save 失败，self.valid? 将变化 false，这会导致后面所有的 update 操作都会失败，所以要 reload 一下。save 失败了会返回 false，所以 `save || reload` 表示只有失败了才 reload。
