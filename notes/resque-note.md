@@ -21,6 +21,8 @@ Resque 依赖于 redis。
     $ QUEUE=queue_a,queue_b bin/rake resuqe:work
     $ QUEUE=queue_c,queue_d bin/rake resuqe:work
 
+QUEUE 参数的值的顺序决定了它们的优化级，越放在前面优化级越高，比如上例中 `queue_a` 的优化级比 `queue_b` 高，`queue_c` 比 `queue_d` 高。
+
 **Resque 的配置**
 
 1. Resque 依赖 redis，所以你要为它配置好 redis 的地址和端口。我们把这些配置写在 config/resque.yml 中，然后在 initializer (initializers/resque.rb) 中读取这些配置，设置给 Resque.redis。

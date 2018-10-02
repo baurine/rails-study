@@ -3,6 +3,7 @@
 1. has_many / through / source / source_type / as / alias_attribute / class_name
 1. PGconn.escape_bytea 处理非法字符
 1. model need to reload after saving fail
+1. Rails 项目的优化
 
 ## has_many / through / source / source_type / as / alias_attribute / class_name
 
@@ -303,3 +304,34 @@ employees 表中有一列 `manager_id` 来关联到 employees 表中的另一个
     end
 
 如果 save 失败，self.valid? 将变化 false，这会导致后面所有的 update 操作都会失败，所以要 reload 一下。save 失败了会返回 false，所以 `save || reload` 表示只有失败了才 reload。
+
+## Rails 项目的优化
+
+总结一下对某个项目进行性能优化的过程，优化结果，将某个页面的加载时间由 6s 降低到 1s。
+
+1. 选择 benchmark 工具
+1. 加索引
+1. redis cache
+1. N+1 问题
+1. 拆分，不要将所有数据都在服务器端产生，可以拆分一些请求在客户端实现；不要所有 view 都在服务端渲染，可以拆分一些与 SEO 无关的 view 在客户端渲染 (其实正是这个改造极大地降低了某个页面的加载时间)
+
+首先，要找出瓶颈所在，到底哪一步耗时最长，因此我们需要使用 profiler 工具，我们用的是 benchmark。使用如下所示：
+
+    require 'benchmark'
+
+    puts Benchmark.measure {
+      # your code
+    }
+
+加索引和 redis cache 就不细说了。
+
+N+1 的问题可以参考这里：
+
+- [浅谈 ActiveRecord 的 N + 1 查询问题](https://ruby-china.org/topics/32364)
+- [Preload、 Eagerload、 Includes 和 Joins](https://ruby-china.org/topics/17866)
+
+实际最终在此项目的优化中最有效果的是最后一个手段，拆分。
+
+通过 benchemark 分析发现，加载速度最慢的页面是搜索结果页面，但实际搜索结果的获取和渲染都不慢，慢就慢在统计结果的序列化和反序列化。我们要对搜索结果进行多个维度的统计，比如 category，而这些 category 有上万个... 这些结果在 json 和对象之间序列化和反序列化耗时很长。而实际这些统计结果并不会在搜索结果页面直接显示，而是先隐藏，除非用户点开看，而且这些统计结果无须 SEO。
+
+于是，我把这部分内容先不在服务端产生和渲染，先只获取搜索结果和渲染搜索结果，等客户端加载后，再通过 ajax 请求重新去拿统计结果。
