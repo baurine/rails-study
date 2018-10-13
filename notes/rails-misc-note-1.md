@@ -362,6 +362,18 @@ turoblinks 同样需要用专门的 js 库来实现，它的工作和 pjax 库�
 
 jquery-ujs 是干什么用的呢，它主要是用来给一些 DOM 添加一些额外的很有用的功能，使用 `data-*` 属性。比如你给一个 button 添加一个 `data-disable="true"` 的属性，这个按键按下后，一定时间内就不能再点击了，以消除抖动，给 form 元素加上 `data-remote="true"` 的属性后，这个 form 的提交就变成了 ajax 请求，而不再是普通请求。
 
+`data-remote="true"` 还可以加到 `<a>` 上，配合 `data-method`，也可以变成 ajax 请求，比如：
+
+    <a href={url} data-method="delete" data-remote="true">
+      <i className='icon-close'></i>
+      <span>Unsubscribe</span>
+    </a>
+
+    <a href={url} data-method="post" data-remote="true">
+      <i className='icon-check'></i>
+      <span>Subscribe</span>
+    </a>
+
 更加详细的功能介绍：[A definitive guide to Rails’s unobtrusive JavaScript adapter](https://m.patrikonrails.com/a-definitive-guide-to-railss-unobtrusive-javascript-adapter-ef13bd047fff)
 
 以及看官方文档。
@@ -425,6 +437,8 @@ jquery-ujs 是干什么用的呢，它主要是用来给一些 DOM 添加一些�
     end
 
 `resources :likes` 将会生成 `DELETE /posts/:post_id/likes/:id` 的 API，而 `resource :likes` 生成 `DELETE /posts/:post_id/likes` 的 API。
+
+resources 生成的 url 中有 id，resource 没有 id。
 
 至于 resource 后面应该用 `like` 还是 `likes`，其实也不好定夺，因为对某篇 post 来说，它是可以有多个 likes 的呀，但对于一个用户来说，它对某篇 post 只能有一个 like，所以我持保留意见，`like` 或 `likes` 都可以。
 
