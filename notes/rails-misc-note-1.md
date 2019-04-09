@@ -26,6 +26,11 @@ Note 1
 
 ## gem & bundle
 
+安装或卸载某个特定版本的 gem:
+
+    $ gem install bundler -v 1.16.3
+    $ gem uninstall bundler -v 2.0.1
+
 查看一个项目中 gem 安装在何处：
 
     $ gem which [gem_name]
@@ -53,6 +58,10 @@ Note 1
 
     # 这个命令有意思，启动一个 http 服务器查看已安装的所有 gem 的信息
     $ gem server
+
+升级 gem:
+
+    $ gem update rubyzip
 
 升级 Gemfile 中的某个 gem：
 
