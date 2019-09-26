@@ -36,7 +36,18 @@ Practice different rails samples follow different tutorials.
 - [capistrano-study](https://github.com/baurine/capistrano-study)
 - [rake-study](https://github.com/baurine/rake-study)
 
-**To Learn**: Devise, Sidekiq, Webpacker ...
+**To Learn**: 
+
+- Devise
+- jbuilder / ams
+- [Ruby on Rails 实战圣经](https://ihower.tw/rails/index-cn.html)
+- ...
+
+学习资源：
+
+- [Go Rails](https://gorails.com/)
+- [RailsCasts](http://railscasts.com/)
+- [Grant's World - Ruby Coder](http://grantcss.com/)
 
 ## Samples
 
